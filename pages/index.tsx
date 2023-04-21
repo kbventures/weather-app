@@ -7,13 +7,15 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box'
 import {useTheme}from '@mui/material/styles';
 import { useEffect, useState } from 'react';
+import type Location from '../types/main.d'
 
 
+  const defaultUrl = 'https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13'
 export default function Home() {
   const theme = useTheme()
   // console.log(theme)
   
-    const [weather, setWeather] = useState([]);
+    const [weather, setWeather] = useState<undefined | Location>(undefined);
     const [location, setLocation] = useState<undefined | { latitude: number, longitude: number }>(undefined);
    
     const options = {
@@ -40,10 +42,21 @@ export default function Home() {
         if (location) {
           // here 
           const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${location.latitude}%2${location.longitude}`
-
+          
+          // Refactor to async await
           fetch(url, options)
 	          .then(res => res.json())
-	          .then(json => setWeather(json))
+            .then(json => {
+              if (json.error){
+                fetch(defaultUrl, options)
+                .then(res =>res.json())
+                .then(json=>{
+                  setWeather(json);
+                })
+              } else {              
+                setWeather(json)
+              }
+            })
 	          .catch(err => console.error('error:' + err));
 
         }
@@ -73,6 +86,7 @@ export default function Home() {
       >
         <Typography component='p' color='common.white'>
           Sat 22
+          {weather ? weather.location.localtime : ""}
         </Typography>
   
 
