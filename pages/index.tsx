@@ -1,11 +1,55 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import * as React from 'react';
+import type { NextPage } from 'next';
+import Image from 'next/image';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box'
+import {useTheme}from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const theme = useTheme()
+  // console.log(theme)
+  
+    const [weather, setWeather] = useState([]);
+    const [location, setLocation] = useState<undefined | { latitude: number, longitude: number }>(undefined);
+   
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': 'c3c48d1f5emsh1d70c25085a9a06p1554d6jsnce958caf6dab',
+        'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
+      }
+    };
+
+    useEffect(() => {
+        if('geolocation' in navigator) {
+            // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
+            navigator.geolocation.getCurrentPosition(({ coords }) => {
+                const { latitude, longitude } = coords;
+              console.log({ coords });
+                setLocation({ latitude, longitude });
+            })
+        }
+    }, []);
+
+    useEffect(() => {
+        // Fetch data from API if `location` object is set
+        if (location) {
+          // here 
+          const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${location.latitude}%2${location.longitude}`
+
+          fetch(url, options)
+	          .then(res => res.json())
+	          .then(json => setWeather(json))
+	          .catch(err => console.error('error:' + err));
+
+        }
+      console.log({location});
+    }, [location]);
+  console.log({ weather });
   return (
     <>
       <Head>
@@ -14,101 +58,38 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
+      <Container maxWidth='lg'>
+        <Box
+        sx={{
+          my: 5,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'start',
+          bgcolor: "rgba(255, 255, 255, 0.1)",
+          width: "fit-content",
+          padding: "12px 37px 18px 28px"
+        }}
+      >
+        <Typography component='p' color='common.white'>
+          Sat 22
+        </Typography>
+  
 
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-        </div>
+        <Box sx={{width: "fit-content",display:"flex", gap:'7px'}}>
+        <Image height="64" width="64" alt='' src="http://cdn.weatherapi.com/weather/64x64/day/116.png"/>
+        <Box sx={{display: 'flex', flexDirection:'column'}}>
+        <Typography sx={{fontWeight:"600"}} component='p' color='common.white'>
+          56°
+        </Typography>
+        <Typography  component='p' color='common.white'>
+          46°
+        </Typography>
+        </Box>
+        </Box>
 
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+      </Box>
+    </Container>
     </>
   )
 }
