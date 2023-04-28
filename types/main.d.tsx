@@ -45,3 +45,8 @@ export interface Location {
     localtime_epoch: number;
     localtime:       string;
 }
+
+export interface GeoLocation{
+    latitude: number,
+    longitude: number,
+}

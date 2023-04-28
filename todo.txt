@@ -1,0 +1,3 @@
+https://rapidapi.com/weatherapi/api/weatherapi-com
+https://www.msn.com/en-us/weather/forecast/in-London,England?loc=eyJsIjoiTG9uZG9uIiwiciI6IkVuZ2xhbmQiLCJyMiI6IkxvbmRvbiIsImMiOiJVbml0ZWQgS2luZ2RvbSIsImkiOiJHQiIsInQiOjEwMiwiZyI6ImVuLXVzIiwieCI6Ii0wLjEyNjIiLCJ5IjoiNTEuNTAwMiJ9&ocid=ansmsnweather&weadegreetype=F
+https://app.quicktype.io/?l=ts
