@@ -19,9 +19,7 @@ export default function Home() {
   const theme = useTheme();
 
   const [weather, setWeather] = useState<undefined | WeatherAPI>(undefined);
-  const [location, setLocation] = useState<
-    undefined | GeoLocation
-  >(undefined);
+  const [location, setLocation] = useState<undefined | GeoLocation>(undefined);
 
   const options: RequestInit = {
     method: "GET",
@@ -32,7 +30,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if ("geolocation" in navigator) {
+    if ("geolocation" in window.navigator) {
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
@@ -57,7 +55,7 @@ export default function Home() {
 
       if (JsonAPIData.error) {
         setWeather(JsonAPIDataDefault);
-        console.log(weather);
+        // console.log(weather);
       } else {
         setWeather(JsonAPIData);
       }
@@ -149,7 +147,7 @@ export default function Home() {
           </Box>
 
           <Box>
-          <Typography>{Wind > weather.current.wind_kph} km/h</Typography>
+          <Typography>Wind {weather.current.wind_kph} km/h</Typography>
           <Typography> Feels like {weather.current.feelslike_c}</Typography>
           </Box>
         
@@ -158,3 +156,4 @@ export default function Home() {
     </>
   );
 }
+
