@@ -41,7 +41,7 @@ export default function Home() {
 
   async function fetchCurrentWeather() {
     if (!location) return;
-    const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${location.latitude}%2${location.longitude}`;
+    const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${location.latitude}%2C${location.longitude}`;
     try {
       const [
         APIResponse,
