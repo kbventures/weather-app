@@ -1,6 +1,6 @@
 import Head from "next/head";
 import * as React from "react";
-import type { NextPage } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
 import Image from "next/image";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -15,10 +15,43 @@ const defaultUrl=
   "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
 ;
 
-export default function Home() {
+// export const getServerSideProps: GetServerSideProps = async ({req,res}) => {
+ 
+//   return { props: {  } };
+// };
+
+
+export async function getServerSideProps() {
+  
+  const defaultUrl = "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
+
+  const options: RequestInit = {
+    method: "GET",
+    headers: {
+      "X-RapidAPI-Key": "c3c48d1f5emsh1d70c25085a9a06p1554d6jsnce958caf6dab",
+      "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
+    },
+  };
+
+  async function fetchCurrentWeather() {
+      const APIResponse = await fetch(defaultUrl, options);
+      const jsonWeather = await APIResponse.json();
+      return jsonWeather as WeatherAPI
+  }
+
+  const weatherProps = await fetchCurrentWeather();
+
+  return {
+    props: {
+      weatherProps, 
+    },
+  };
+}
+
+export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof getServerSideProps>) {
   const theme = useTheme();
 
-  const [weather, setWeather] = useState<undefined | WeatherAPI>(undefined);
+  const [weather, setWeather] = useState<undefined | WeatherAPI>(weatherProps);
   const [location, setLocation] = useState<undefined | GeoLocation>(undefined);
 
   const options: RequestInit = {
