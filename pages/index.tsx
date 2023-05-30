@@ -89,7 +89,6 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
   }
 
   useEffect(() => {
-    // Fetch data from API if `location` object is set
     if (location) {
       fetchAPI();
     }
