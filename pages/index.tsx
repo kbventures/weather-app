@@ -94,7 +94,6 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
       fetchAPI();
     }
   }, [location]);
-  // console.log(weather);
 
 
 
