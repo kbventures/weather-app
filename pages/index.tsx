@@ -11,10 +11,6 @@ import type WeatherAPI from "../types/main.d";
 import type {GeoLocation} from "../types/main.d";
 import { format } from "date-fns";
 
-// export const getServerSideProps: GetServerSideProps = async ({req,res}) => {
- 
-//   return { props: {  } };
-// };
 const defaultUrl = "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
 
 
@@ -47,8 +43,6 @@ async function fetchCurrentWeather(url: string) {
 
 export async function getServerSideProps() {
   
-  console.log("getServerSideProps")
-
   const defaultUrl = "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
 
 
@@ -66,7 +60,6 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
   const theme = useTheme();
   const [weather, setWeather] = useState<WeatherAPI | Error>(weatherProps);
   const [location, setLocation] = useState<undefined | GeoLocation>();
-  console.log(weather);
 
   // console.log("is it runnning ssr and client", weather)
   const options: RequestInit = {
@@ -78,9 +71,7 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
   };
   
   useEffect(() => {
-    console.log('running server side')
     if ("geolocation" in window.navigator) {
-      console.log("haha ken is right haha.. probably not")
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
