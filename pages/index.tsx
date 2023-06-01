@@ -11,35 +11,48 @@ import type WeatherAPI from "../types/main.d";
 import type {GeoLocation} from "../types/main.d";
 import { format } from "date-fns";
 
-const defaultUrl=
-  "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
-;
-
 // export const getServerSideProps: GetServerSideProps = async ({req,res}) => {
  
 //   return { props: {  } };
 // };
+const defaultUrl = "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
+
+
+const options: RequestInit = {
+  method: "GET",
+  headers: {
+    "X-RapidAPI-Key": "c3c48d1f5emsh1d70c25085a9a06p1554d6jsnce958caf6dab",
+    "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
+  },
+};
+
+
+// Good question to ask weather the final error return can possibly be used
+async function fetchCurrentWeather(url: string) {
+  try {
+    const APIResponse = await fetch(url, options);
+    if (!APIResponse.ok) throw new Error("Request error")
+    const jsonWeather = await APIResponse.json();
+    if (jsonWeather.error) throw new Error("API error")
+    return jsonWeather as WeatherAPI
+  } catch (error) {
+    console.log("error:", error)
+    if (error instanceof Error) {
+     return error
+    }
+  }
+  return new Error("Something went wrong");
+}
 
 
 export async function getServerSideProps() {
   
+  console.log("getServerSideProps")
+
   const defaultUrl = "https://weatherapi-com.p.rapidapi.com/current.json?q=53.1%2C-0.13"
 
-  const options: RequestInit = {
-    method: "GET",
-    headers: {
-      "X-RapidAPI-Key": "c3c48d1f5emsh1d70c25085a9a06p1554d6jsnce958caf6dab",
-      "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
-    },
-  };
 
-  async function fetchCurrentWeather() {
-      const APIResponse = await fetch(defaultUrl, options);
-      const jsonWeather = await APIResponse.json();
-      return jsonWeather as WeatherAPI
-  }
-
-  const weatherProps = await fetchCurrentWeather();
+  const weatherProps = await fetchCurrentWeather(defaultUrl);
 
   return {
     props: {
@@ -49,11 +62,13 @@ export async function getServerSideProps() {
 }
 
 export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof getServerSideProps>) {
+  
   const theme = useTheme();
+  const [weather, setWeather] = useState<WeatherAPI | Error>(weatherProps);
+  const [location, setLocation] = useState<undefined | GeoLocation>();
+  console.log(weather);
 
-  const [weather, setWeather] = useState<undefined | WeatherAPI>(weatherProps);
-  const [location, setLocation] = useState<undefined | GeoLocation>(undefined);
-
+  // console.log("is it runnning ssr and client", weather)
   const options: RequestInit = {
     method: "GET",
     headers: {
@@ -61,9 +76,11 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
       "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com",
     },
   };
-
+  
   useEffect(() => {
+    console.log('running server side')
     if ("geolocation" in window.navigator) {
+      console.log("haha ken is right haha.. probably not")
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
@@ -72,44 +89,27 @@ export default function Home({weatherProps}:  InferGetServerSidePropsType<typeof
     }
   }, []);
 
-  async function fetchCurrentWeather() {
+  async function fetchAPI() {
     if (!location) return;
     const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${location.latitude}%2C${location.longitude}`;
-    try {
-      const [
-        APIResponse,
-        DefaultAPIResponse,
-      ] = await Promise.all([fetch(url, options), fetch(defaultUrl, options)]);
-      
-      const [JsonAPIData, JsonAPIDataDefault] = await Promise.all([
-        APIResponse.json(),
-        DefaultAPIResponse.json(),
-      ]);
+    const newWeather = await fetchCurrentWeather(url);
 
-      if (JsonAPIData.error) {
-        setWeather(JsonAPIDataDefault);
-        // console.log(weather);
-      } else {
-        setWeather(JsonAPIData);
-      }
-    } catch (e) {
-      console.error("error:" + e);
-    }
+    if (!(newWeather instanceof Error)) setWeather(newWeather);
   }
 
   useEffect(() => {
     // Fetch data from API if `location` object is set
     if (location) {
-      fetchCurrentWeather();
+      fetchAPI();
     }
   }, [location]);
-  console.log(weather);
+  // console.log(weather);
 
 
 
   // TODO CREATE LOADING PAGE
-  if (!weather) {
-    return "Loading...";
+  if (weather instanceof Error) {
+    return <span>Error</span>;
   }
 
   return (
